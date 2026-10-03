@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+logs/*.log*
+materi_kuliah/*
+!materi_kuliah/.gitkeep
+.pytest_cache/
+build/
+dist/
+*.spec

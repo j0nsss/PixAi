@@ -1,0 +1,21 @@
+# Manual QA Checklist
+
+- [ ] Hotkey toggles show and hide 20 times quickly, with no crash and no double toggle
+- [ ] After showing, typing works immediately with no click. Esc hides the window
+- [ ] Window can be dragged. Reset, Attach and Quit shortcuts work
+- [ ] Missing `materi_kuliah/`: the folder is created and the status says so
+- [ ] Empty `materi_kuliah/`: the status says it is empty and the chat still answers from general knowledge
+- [ ] Folder with only `.docx`: it reports files found but none readable
+- [ ] Corrupted PDF, password-protected PDF and scanned PDF in `materi_kuliah/`: the app does not crash and the log shows clear warnings
+- [ ] A question that matches a file returns an answer with a `Sources:` line
+- [ ] A `jadwal.md` file: "jadwal besok apa?" and "what do I have on Friday?" produce answers using the current date
+- [ ] Adding a file while the app runs: it is indexed within `RESCAN_INTERVAL_SECONDS`. Deleting it removes it from the index
+- [ ] Multi-turn memory: a follow-up without context works. Reset clears memory and the transcript
+- [ ] Reset during streaming: the old stream stops and nothing leaks into the new conversation
+- [ ] Attachment: it is used for one prompt, then cleared. A failed prompt keeps the attachment
+- [ ] Ollama stopped: a clear message appears, and the app recovers after Ollama starts
+- [ ] Model missing: the pull instruction appears
+- [ ] Timeout: set `OLLAMA_READ_TIMEOUT = 1`, ask a question against a cold model, and confirm the timeout message appears. Restore the value afterwards
+- [ ] macOS without Accessibility permission: the warning is logged and the window is shown at startup with the status notice
+- [ ] Invalid `SECOND_BRAIN_HOTKEY` value: it falls back to the default and logs an error
+- [ ] Quit via button, `Ctrl/Cmd+Q` and Ctrl+C: all exit cleanly

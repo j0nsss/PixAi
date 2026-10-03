@@ -1,0 +1,5 @@
+customtkinter>=5.2.2
+pynput>=1.7.7
+pypdf>=4.0.0
+requests>=2.31.0
+pytest>=8.0.0
