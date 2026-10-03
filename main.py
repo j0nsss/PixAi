@@ -35,6 +35,11 @@ def main() -> None:
     from utils.threading_utils import UiBridge
     from core.hotkey_manager import HotkeyManager
     from core.platform_utils import IS_MACOS, is_accessibility_trusted, ACCESSIBILITY_HELP
+    from core.rag_engine import RagEngine
+    from core.llm_client import OllamaClient
+    from core.chat_memory import ChatMemory
+    from core.controller import AppController
+    from config import MATERI_DIR
 
     window = MainWindow(start_hidden=not args.show)
 
@@ -44,6 +49,7 @@ def main() -> None:
 
     # macOS accessibility check
     hotkey_started = False
+    trusted = None
     if IS_MACOS:
         trusted = is_accessibility_trusted()
         if trusted is False:
@@ -62,28 +68,15 @@ def main() -> None:
         if not hotkey_started:
             window.set_status("Global hotkey unavailable. Use the window controls.", "warn")
 
-    # TEMP-PHASE2: placeholder echo handler - remove in Task 5.8
-    def _temp_on_submit(text: str) -> None:
-        window.chat_view.append_user(text)
-        window.input_bar.set_busy(True)
+    # Core services
+    rag = RagEngine(MATERI_DIR)
+    client = OllamaClient()
+    memory = ChatMemory()
 
-        def _stream_echo(tokens: list[str], idx: int = 0) -> None:
-            if idx < len(tokens):
-                window.chat_view.append_assistant_token(tokens[idx])
-                window.after(20, lambda: _stream_echo(tokens, idx + 1))
-            else:
-                window.chat_view.end_assistant_message()
-                window.input_bar.set_busy(False)
-                window.input_bar.focus_entry()
-
-        # Echo back with "(echo) " prefix
-        echo_text = "(echo) " + text
-        # Split into "tokens" for streaming effect
-        tokens = list(echo_text)
-        window.chat_view.begin_assistant_message()
-        _stream_echo(tokens)
-
-    window.actions.on_submit = _temp_on_submit
+    controller = AppController(window, bridge, rag, client, memory)
+    controller.set_hotkey_manager(hotkey)
+    controller.bind()
+    controller.start_background_services()
 
     def _on_quit() -> None:
         hotkey.stop()
