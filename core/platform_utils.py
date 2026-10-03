@@ -4,6 +4,9 @@ import sys
 import subprocess
 import logging
 import tkinter
+import os
+import ctypes
+import ctypes.util
 
 logger = logging.getLogger(__name__)
 
@@ -12,6 +15,29 @@ IS_MACOS = sys.platform == "darwin"
 MOD_KEY = "Command" if IS_MACOS else "Control"
 MOD_LABEL = "⌘" if IS_MACOS else "Ctrl"
 HOTKEY_LABEL = "Option+Space" if IS_MACOS else "Alt+Space"
+
+ACCESSIBILITY_HELP = (
+    "pynput cannot see global key presses. "
+    "Open System Settings → Privacy & Security → Accessibility AND Input Monitoring, "
+    "enable the app that launches Python (Terminal, iTerm, VS Code, Cursor, …), "
+    "then fully quit and relaunch that app."
+)
+
+
+def is_accessibility_trusted() -> bool | None:
+    """Check if the process has macOS Accessibility permission.
+
+    Returns:
+        True if trusted, False if not trusted, None if not on macOS or check failed.
+    """
+    if not IS_MACOS:
+        return None
+    try:
+        lib = ctypes.cdll.LoadLibrary(ctypes.util.find_library("ApplicationServices"))
+        lib.AXIsProcessTrusted.restype = ctypes.c_bool
+        return bool(lib.AXIsProcessTrusted())
+    except Exception:
+        return None
 
 
 def apply_frameless(window) -> None:
